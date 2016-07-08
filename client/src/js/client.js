@@ -10,6 +10,7 @@ ReactDOM.render(
   <div>
     <Header />
     <Index />
+    <div class="clearfix"></div>
     <Footer />
   </div>,
 app);

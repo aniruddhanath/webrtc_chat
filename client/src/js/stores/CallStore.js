@@ -16,6 +16,12 @@ class CallStore extends EventEmitter {
     return this.incoming;
   }
 
+  reset() {
+    this.room = null;
+    this.incoming = {};
+    this.isInitiator = true;
+  }
+
   handleActions(payload) {
     const self = this;
     switch(payload._id) {
@@ -54,6 +60,10 @@ class CallStore extends EventEmitter {
       }
       case "Call:Opened": {
         self.emit("opened", payload.message);
+        break;
+      }
+      case "Call:Disconnect": {
+        self.emit("disconnect");
         break;
       }
     }

@@ -42,6 +42,18 @@ class UsersStore extends EventEmitter {
         self.emit("reloaded");
         break;
       }
+      case "User:Busy": {
+        const users = self.users.map((user) => {
+          if (user.sid !== payload.user.sid) {
+            return user;
+          }
+          user.busy = true;
+          return user;
+        });
+        self.users = users;
+        self.emit("reloaded");
+        break;
+      }
       case "User:Loggedin": {
         self.user = payload.user;
         self.emit("loggedin");

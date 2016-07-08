@@ -7,10 +7,12 @@ socket.on("connect", onConnection);
 socket.on("user:loggedin", onLoggedIn);
 socket.on("user:joined", onUserJoined);
 socket.on("user:left", onUserLeft);
+socket.on("user:busy", onUserBusy);
 
 socket.on("call:incoming", onCall);
 socket.on("call:ready", onReady);
 socket.on("call:signaling", onSignaling);
+socket.on("call:disconnect", onDisconnect);
 
 socket.on("message", onMessage);
 socket.on("error", onError);
@@ -50,6 +52,14 @@ function onUserLeft(user) {
   dispatcher.dispatch(payload);
 }
 
+function onUserBusy(user) {
+  const payload = {
+    _id: "User:Busy",
+    user: user
+  };
+  dispatcher.dispatch(payload);
+}
+
 // call related
 function onCall(room, caller) {
   const payload = {
@@ -75,7 +85,14 @@ function onSignaling(message) {
     _id: "Call:Signaled",
     message
   };
-  dispatcher.dispatch(payload); 
+  dispatcher.dispatch(payload);
+}
+
+function onDisconnect() {
+  const payload = {
+    _id: "Call:Disconnect"
+  };
+  dispatcher.dispatch(payload);
 }
 
 // general

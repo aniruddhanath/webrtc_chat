@@ -14,10 +14,10 @@ export default class UserForm extends React.Component {
 
   render() {
     return (
-      <div>
-        <h3>Choose a username to continue...</h3>
+      <div class="form-group">
         <form onSubmit={this.onSubmit.bind(this)}>
-          <input type="text" ref="name" placeholder="Username" />
+          <label class="control-label" for="name">Name</label>
+          <input class="form-control" ref="name" id="name" type="text" placeholder="Type your name and hit enter!" />
         </form>
       </div>
     );

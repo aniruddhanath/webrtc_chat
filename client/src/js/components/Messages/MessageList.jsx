@@ -15,11 +15,12 @@ export default class MessageList extends React.Component {
     }
     
     const messageList = this.props.messages.map((message, i) => {
-      return <Message message={message} key={i} />
+      const localMessage = message.user.sid === this.props.currentUser.sid;
+      return <Message message={message} key={i} localMessage={localMessage} />
     });
+
     return (
       <div>
-        <h4>Messages</h4>
         {messageList}
       </div>
     );

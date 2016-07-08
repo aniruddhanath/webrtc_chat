@@ -17,6 +17,7 @@ function _onDataChannelCreated(channel) {
       _id: "Call:Opened"
     });
   };
+
   channel.onmessage = function (event) {
     console.log("from remote - ", event);
     // dispatch
@@ -25,6 +26,12 @@ function _onDataChannelCreated(channel) {
       message: JSON.parse(event.data)
     });
   };
+
+  channel.onclose = function () {
+    console.log("CHANNEL closed!!");
+  };
+
+  channel.onerror = _logError;
 }
 
 function _sendMessage(message) {
@@ -116,8 +123,15 @@ export function send(message) {
   dataChannel.send(JSON.stringify(message));
   console.log("local - ", message);
   // dispatch
-    dispatcher.dispatch({
-      _id: "Message:Local",
-      message: message
-    });
+  dispatcher.dispatch({
+    _id: "Message:Local",
+    message: message
+  });
+}
+
+export function close() {
+  dataChannel.close();
+  isInitiator = true;
+  peerConnection = undefined;
+  dataChannel = undefined;
 }

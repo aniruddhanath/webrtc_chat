@@ -22,13 +22,13 @@ export default class MessageForm extends React.Component {
     if (!this.props.connectionEstablished) {
       return (
         <div></div>
-      )
+      );
     }
     
     return (
-      <div>
+      <div class="form-group">
         <form onSubmit={this.submit.bind(this)}>
-          <input type="text" ref="text" placeholder="Type a message" />
+          <input class="form-control" type="text" ref="text" placeholder="Type a message and hit enter!" />
         </form>
       </div>
     );

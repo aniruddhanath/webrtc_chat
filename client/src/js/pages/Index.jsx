@@ -21,14 +21,16 @@ export default class Index extends React.Component {
       messages: Messages.all(),
       users: Users.fetch(),
       user: Users.current(),
-      call: {},
+      caller: {},
+      callee: {},
+      room: null,
       isInitiator: true,
       connectionEstablished: false
-    }
+    };
   }
 
   componentWillMount() {
-    var self = this;
+    const self = this;
 
     Users.on("reloaded", function () {
       self.setState({ users: Users.all() });
@@ -39,8 +41,10 @@ export default class Index extends React.Component {
     });
 
     Call.on("incoming", function () {
+      const call = Call.incomingCall();
       self.setState({
-        call: Call.incomingCall(),
+        caller: call.caller,
+        room: call.room,
         isInitiator: false
       });
     });
@@ -62,6 +66,20 @@ export default class Index extends React.Component {
       self.setState({ connectionEstablished: true });
     });
 
+    Call.on("disconnect", function () {
+      Messages.reset();
+      Call.reset();
+      self.setState({
+        messages: Messages.all(),
+        caller: {},
+        callee: {},
+        room: null,
+        isInitiator: true,
+        connectionEstablished: false
+      });
+      RTCActions.close();
+    });
+
     Messages.on("added", function () {
       self.setState({ messages: Messages.all() });
     });
@@ -75,11 +93,8 @@ export default class Index extends React.Component {
     Call.removeListener("signaling");
     Call.removeListener("signaled");
     Call.removeListener("opened");
+    Call.removeListener("disconnect");
     Messages.removeListener("added");
-  }
-
-  onLoggedIn(user) {
-    this.setState({user: user});
   }
 
   emit(eventName, payload) {
@@ -90,6 +105,17 @@ export default class Index extends React.Component {
     RTCActions.send(payload);
   }
 
+  startCall(user, room) {
+    this.setState({
+      room,
+      callee: user
+    });
+    this.emit("startCall", {
+      room,
+      socket_id: user.sid
+    });
+  }
+
   render() {
     if (!this.state.user) {
       return (
@@ -97,16 +123,46 @@ export default class Index extends React.Component {
       )
     }
 
-    return (
-      <div>
-        <h4>Welcome {this.state.user.name}</h4>
+    let header = "Make a call buddy!";
+    let peer = this.state.isInitiator ? this.state.callee.name : this.state.caller.name
+    if (this.state.connectionEstablished) {
+      header = (
         <div>
-          <UserList users={this.state.users} emit={this.emit.bind(this)} />
+          Ongoing call {this.state.isInitiator ? "to" : "from"} <span class="text-primary">{peer}</span>!
         </div>
-        <UserCall call={this.state.call} emit={this.emit.bind(this)} />
-        <div>
-          <MessageList messages={this.state.messages} connectionEstablished={this.state.connectionEstablished} />
-          <MessageForm send={this.send.bind(this)} user={this.state.user} connectionEstablished={this.state.connectionEstablished} />
+      );
+    }
+
+    return (
+      <div class="row">
+        <div class="col-md-4">
+          <UserList users={this.state.users}
+            startCall={this.startCall.bind(this)}
+            emit={this.emit.bind(this)}
+            caller={this.state.caller}
+            callee={this.state.callee}
+            room={this.state.room}
+            connectionEstablished={this.state.connectionEstablished}/>
+        </div>
+
+        <div class="col-md-8">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">{header}</h3>
+            </div>
+            <div class="panel-body">
+              <UserCall room={this.state.room}
+                caller={this.state.caller}
+                emit={this.emit.bind(this)}
+                connectionEstablished={this.state.connectionEstablished} />
+              <MessageList messages={this.state.messages}
+                currentUser={this.state.user}
+                connectionEstablished={this.state.connectionEstablished} />
+              <MessageForm send={this.send.bind(this)}
+                user={this.state.user}
+                connectionEstablished={this.state.connectionEstablished} />
+            </div>
+          </div>
         </div>
       </div>
     );

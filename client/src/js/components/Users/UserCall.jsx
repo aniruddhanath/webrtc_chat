@@ -7,22 +7,25 @@ export default class UserCall extends React.Component {
 
   reply(event) {
     event.preventDefault();
-    const payload = this.props.call;
+    const payload = {
+      room: this.props.room,
+      caller: this.props.caller
+    };
     this.props.emit("receiveCall", payload);
   }
 
   render() {
-    if (this.props.call.room) {
+    if (!this.props.caller.name || this.props.connectionEstablished) {
       return (
-        <div>
-          getting a call from {this.props.call.caller.name}
-          <button onClick={this.reply.bind(this)}>Receive</button>
-        </div>
-      )
+        <div></div>
+      );
     }
 
     return (
-      <div></div>
+      <div class="well well-sm">
+        Heads up! <strong>{this.props.caller.name}</strong> is calling..
+        <button class="btn btn-primary btn-xs pull-right" onClick={this.reply.bind(this)}>Receive</button>
+      </div>
     );
   }
 }

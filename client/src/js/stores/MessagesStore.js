@@ -4,16 +4,15 @@ import dispatcher from "../dispatcher";
 class MessagesStore extends EventEmitter {
   constructor() {
     super();
-    // this.messages = [{
-    //   timeStamp: Date.now(),
-    //   text: "Start sending messages to all other users!",
-    //   user: { name: "Bot", id: 0 }
-    // }];
     this.messages = [];
   }
 
   all() {
     return this.messages;
+  }
+
+  reset() {
+    this.messages = [];
   }
 
   handleActions(payload) {
