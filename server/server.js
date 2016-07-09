@@ -15,14 +15,19 @@ redis.on("error", function (err) {
   console.log("Error " + err);
 });
 
-require('./routes')(app);
+// cors headers
+app.all('/*', function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  next();
+});
 
-var usersObject = {},
-  connections = 0;
+// routes
+require('./routes')(app);
 
 // socket.io
 var io = require("socket.io").listen(app.listen(config.port));
-require('./socket')(io, usersObject, connections);
+require('./socket')(io);
 
 // start server
 server.listen(config.port, config.ip, function () {

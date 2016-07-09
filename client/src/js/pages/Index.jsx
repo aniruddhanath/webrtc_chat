@@ -83,6 +83,10 @@ export default class Index extends React.Component {
     Messages.on("added", function () {
       self.setState({ messages: Messages.all() });
     });
+
+    self.timer = setInterval(function () {
+      self.setState({ messages: Messages.all() });
+    }, 1000);
   }
 
   componentWillUnmount() {
@@ -95,6 +99,7 @@ export default class Index extends React.Component {
     Call.removeListener("opened");
     Call.removeListener("disconnect");
     Messages.removeListener("added");
+    clearInterval(this.timer);
   }
 
   emit(eventName, payload) {
@@ -106,13 +111,15 @@ export default class Index extends React.Component {
   }
 
   startCall(user, room) {
+    const self = this;
     this.setState({
       room,
       callee: user
     });
     this.emit("startCall", {
       room,
-      socket_id: user.sid
+      caller: self.state.user,
+      callee: user
     });
   }
 

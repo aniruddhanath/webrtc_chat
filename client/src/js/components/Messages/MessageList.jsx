@@ -19,8 +19,11 @@ export default class MessageList extends React.Component {
       return <Message message={message} key={i} localMessage={localMessage} />
     });
 
+    const welcome = messageList.length ? "" : "Start sending messages!";
+
     return (
       <div>
+        <p class="text-center lead">{welcome}</p>
         {messageList}
       </div>
     );

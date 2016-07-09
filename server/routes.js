@@ -10,16 +10,24 @@ module.exports = function(app) {
   });
 
   app.get("/users", function (req, res) {
-    res.header("Access-Control-Allow-Origin", "*");
-    redis.hgetall(config.keys.users, function (err, hash) {
-      if (err || !hash) {
+    redis.keys(config.keys.users + "*", function (err, keys) {
+      if (err || !keys || !keys.length) {
         res.send([]);
         return;
       }
-      const users = Object.keys(hash).map(function (key) {
-        return hash[key];
+
+      var users = [];
+      // async parallel
+      keys.forEach(function (key) {
+        redis.hgetall(key, function (err, user) {
+          if (!err && user) {
+            users.push(user);
+            if (users.length === keys.length) {
+              res.send(users);
+            }
+          }
+        });
       });
-      res.send(users);
     });
   });
 

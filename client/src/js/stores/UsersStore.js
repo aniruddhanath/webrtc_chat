@@ -47,8 +47,7 @@ class UsersStore extends EventEmitter {
           if (user.sid !== payload.user.sid) {
             return user;
           }
-          user.busy = true;
-          return user;
+          return payload.user;
         });
         self.users = users;
         self.emit("reloaded");

@@ -5,5 +5,5 @@ export function generateToken() {
 }
 
 export function formatTime(timestamp) {
-  return moment(timestamp).fromNow();
+  return moment(timestamp).fromNow(true);
 }
