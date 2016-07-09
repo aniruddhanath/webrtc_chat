@@ -20,11 +20,13 @@ export default class MessageList extends React.Component {
     });
 
     const welcome = messageList.length ? "" : "Start sending messages!";
+    const peerIsTyping = this.props.peerIsTyping ? this.props.currentUser.name + " is typing.." : ""
 
     return (
       <div>
         <p class="text-center lead">{welcome}</p>
         {messageList}
+        <p class="text-muted">{peerIsTyping}</p>
       </div>
     );
   }

@@ -5,6 +5,7 @@ class MessagesStore extends EventEmitter {
   constructor() {
     super();
     this.messages = [];
+    this.typing = false;
   }
 
   all() {
@@ -13,6 +14,11 @@ class MessagesStore extends EventEmitter {
 
   reset() {
     this.messages = [];
+    this.typing = false;
+  }
+
+  peerIsTyping() {
+    return this.typing;
   }
 
   handleActions(payload) {
@@ -20,14 +26,22 @@ class MessagesStore extends EventEmitter {
     switch(payload._id) {
       case "Message:Remote": {
         payload.nature = "remote";
-        self.messages.push(payload.message);
-        self.emit("added");
+        if (payload.message.type === "message") {
+          self.messages.push(payload.message);
+          self.emit("added");
+        }
+        if (payload.message.type === "status") {
+          this.typing = payload.message.text === "started";
+          self.emit("typing");
+        }
         break;
       }
       case "Message:Local": {
         payload.nature = "local";
-        self.messages.push(payload.message);
-        self.emit("added");
+        if (payload.message.type === "message") {
+          self.messages.push(payload.message);
+          self.emit("added");
+        }
         break;
       }
     }

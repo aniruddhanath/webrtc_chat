@@ -47,7 +47,8 @@ export default class Index extends React.Component {
         caller: call.caller,
         room: call.room,
         processingCall: true,
-        isInitiator: false
+        isInitiator: false,
+        peerIsTyping: false
       });
     });
 
@@ -102,6 +103,10 @@ export default class Index extends React.Component {
       self.setState({ messages: Messages.all() });
     });
 
+    Messages.on("typing", function (typing) {
+      self.setState({ peerIsTyping: Messages.peerIsTyping() });
+    });
+
     self.timer = setInterval(function () {
       self.setState({ messages: Messages.all() });
     }, 1000);
@@ -118,6 +123,7 @@ export default class Index extends React.Component {
     Call.removeListener("disconnect");
     Call.removeListener("reject");
     Messages.removeListener("added");
+    Messages.removeListener("typing");
     clearInterval(this.timer);
   }
 
@@ -182,6 +188,7 @@ export default class Index extends React.Component {
                 connectionEstablished={this.state.connectionEstablished} />
               <MessageList messages={this.state.messages}
                 currentUser={this.state.user}
+                peerIsTyping={this.state.peerIsTyping}
                 connectionEstablished={this.state.connectionEstablished} />
               <MessageForm send={this.send.bind(this)}
                 user={this.state.user}
