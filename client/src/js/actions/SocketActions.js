@@ -13,6 +13,7 @@ socket.on("call:incoming", onCall);
 socket.on("call:ready", onReady);
 socket.on("call:signaling", onSignaling);
 socket.on("call:disconnect", onDisconnect);
+socket.on("call:rejected", onReject);
 
 socket.on("message", onMessage);
 socket.on("error", onError);
@@ -91,6 +92,13 @@ function onSignaling(message) {
 function onDisconnect() {
   const payload = {
     _id: "Call:Disconnect"
+  };
+  dispatcher.dispatch(payload);
+}
+
+function onReject() {
+  const payload = {
+    _id: "Call:Reject"
   };
   dispatcher.dispatch(payload);
 }

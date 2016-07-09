@@ -25,6 +25,7 @@ export default class Index extends React.Component {
       callee: {},
       room: null,
       isInitiator: true,
+      processingCall: false,
       connectionEstablished: false
     };
   }
@@ -45,13 +46,17 @@ export default class Index extends React.Component {
       self.setState({
         caller: call.caller,
         room: call.room,
+        processingCall: true,
         isInitiator: false
       });
     });
 
     Call.on("ready", function (data) {
       RTCActions.createPeerConnection(data.room, data.isInitiator);
-      self.setState({ connectionEstablished: true });
+      self.setState({
+        processingCall: false,
+        connectionEstablished: true
+      });
     });
 
     Call.on("signaling", function (message) {
@@ -75,9 +80,22 @@ export default class Index extends React.Component {
         callee: {},
         room: null,
         isInitiator: true,
+        processingCall: false,
         connectionEstablished: false
       });
       RTCActions.close();
+    });
+
+    Call.on("reject", function () {
+      Call.reset();
+      self.setState({
+        caller: {},
+        callee: {},
+        room: null,
+        isInitiator: true,
+        processingCall: false,
+        connectionEstablished: false
+      });
     });
 
     Messages.on("added", function () {
@@ -98,6 +116,7 @@ export default class Index extends React.Component {
     Call.removeListener("signaled");
     Call.removeListener("opened");
     Call.removeListener("disconnect");
+    Call.removeListener("reject");
     Messages.removeListener("added");
     clearInterval(this.timer);
   }
@@ -114,12 +133,8 @@ export default class Index extends React.Component {
     const self = this;
     this.setState({
       room,
-      callee: user
-    });
-    this.emit("startCall", {
-      room,
-      caller: self.state.user,
-      callee: user
+      callee: user,
+      processingCall: true
     });
   }
 
@@ -146,9 +161,11 @@ export default class Index extends React.Component {
           <UserList users={this.state.users}
             startCall={this.startCall.bind(this)}
             emit={this.emit.bind(this)}
+            user={this.state.user}
             caller={this.state.caller}
             callee={this.state.callee}
             room={this.state.room}
+            processingCall={this.state.processingCall}
             connectionEstablished={this.state.connectionEstablished}/>
         </div>
 
@@ -160,6 +177,7 @@ export default class Index extends React.Component {
             <div class="panel-body">
               <UserCall room={this.state.room}
                 caller={this.state.caller}
+                user={this.state.user}
                 emit={this.emit.bind(this)}
                 connectionEstablished={this.state.connectionEstablished} />
               <MessageList messages={this.state.messages}

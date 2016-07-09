@@ -42,19 +42,16 @@ class CallStore extends EventEmitter {
           isInitiator: self.isInitiator
         };
         self.room = payload.room;
-        // self.createPeerConnection();
         self.emit("ready", self.ready);
         break;
       }
       case "Call:Signaling": {
         console.log(payload);
-        // self.signalingMessageCallback(payload.message);
         self.emit("signaling", payload);
         break;
       }
       case "Call:Signaled": {
         console.log(payload);
-        // self.signalingMessageCallback(payload.message);
         self.emit("signaled", payload.message);
         break;
       }
@@ -64,6 +61,10 @@ class CallStore extends EventEmitter {
       }
       case "Call:Disconnect": {
         self.emit("disconnect");
+        break;
+      }
+      case "Call:Reject": {
+        self.emit("reject");
         break;
       }
     }

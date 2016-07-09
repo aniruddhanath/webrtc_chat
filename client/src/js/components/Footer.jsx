@@ -9,7 +9,7 @@ export default class Footer extends React.Component {
     return (
       <footer>
         <hr />
-        Footer
+        <p class="text-muted">Created for educational purpose by <a href="https://github.com/aniruddhanath/webrtc_chat">Aniruddha</a>.</p>
       </footer>
     );
   }

@@ -6,20 +6,29 @@ export default class UserList extends React.Component {
     super();
   }
 
-  makeCall(user, event) {
+  makeCall(user, disableAction, event) {
     event.preventDefault();
+    if (disableAction) {
+      return;
+    }
     const room = Utils.generateToken();
+    const self = this;
+    this.props.emit("startCall", {
+      room,
+      caller: self.props.user,
+      callee: user
+    });
     this.props.startCall(user, room);
   }
 
-  disconnectCall(user, event) {
+  disconnectCall(user, disableAction, event) {
     event.preventDefault();
     this.props.emit("disconnectCall", {
       room: this.props.room
     });
   }
 
-  noop(user, event) {
+  noop(user, disableAction, event) {
     event.preventDefault();
     // do nothing
   }
@@ -34,6 +43,8 @@ export default class UserList extends React.Component {
         action: this.makeCall
       };
 
+      let disableAction = false;
+
       if (isActive && this.props.connectionEstablished) {
         button = {
           text: "Disconnect",
@@ -46,7 +57,7 @@ export default class UserList extends React.Component {
           css: "btn-info",
           action: this.noop
         };
-      } else if (user.busy) {
+      } else if (user.busy && user.busy !== "false") {
         button = {
           text: "Busy",
           css: "btn-warning",
@@ -54,14 +65,15 @@ export default class UserList extends React.Component {
         };
       }
 
-      if (!isActive && this.props.connectionEstablished) {
+      if ((!isActive && this.props.connectionEstablished) || this.props.processingCall) {
         button.css += " disabled";
+        disableAction = true;
       }
 
       return (
         <li class="list-group-item" key={i}>
           {user.name}
-          <button class={"btn btn-xs pull-right " + button.css} onClick={button.action.bind(this, user)}>{button.text}</button>
+          <button class={"btn btn-xs pull-right " + button.css} onClick={button.action.bind(this, user, disableAction)}>{button.text}</button>
         </li>
       );
     });

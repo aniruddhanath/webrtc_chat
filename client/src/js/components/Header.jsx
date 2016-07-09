@@ -21,18 +21,20 @@ export default class Header extends React.Component {
   }
 
   render() {
-    let sub = (
-      <p>Please enter your name to continue.</p>
+    let title = (
+      <h2>WebRTC Chat</h2>
     );
     if (this.state.user) {
-      sub = (
-        <p>Howdy <span class="text-primary">{this.state.user.name}</span>! Hope you have a good experience.</p>
+      title = (
+        <div>
+          <h2>Howdy <span class="text-primary">{this.state.user.name}</span>!</h2>
+          <p class="text-muted">Hope is good thing to start with.</p>
+        </div>
       );
     }
     return (
-      <div class="page-header">
-        <h2>WebRTC Chat App</h2>
-        {sub}
+      <div class="page-header text-center">
+        {title}
       </div>
     );
   }
