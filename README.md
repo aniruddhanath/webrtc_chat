@@ -1,6 +1,11 @@
 # webrtc_chat
 
-A WebRTC `DataChannel` based private chat application using Socket.io based signaling server and React in frontend.
+A WebRTC `DataChannel` based private chat application using Nodejs as signaling server and React in frontend.
+
+Screenshot
+--
+
+![screenshot](https://raw.githubusercontent.com/aniruddhanath/webrtc_chat/master/screenshot.png)
 
 Start Server
 --
@@ -18,4 +23,4 @@ cd client && npm install
 npm run dev
 ```
 
-Application runs at localhost:8080
+Application runs at `localhost:8080`
