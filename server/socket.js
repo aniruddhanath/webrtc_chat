@@ -28,7 +28,6 @@ module.exports = function(io) {
       socket.disconnect();
       redis.hgetall(config.keys.users + socket.id, function (err, user) {
         if (!err && user) {
-          
           // TODO: check for user connected to room & send disconnect
 
           // send to others
@@ -40,7 +39,6 @@ module.exports = function(io) {
     });
 
     socket.on("userJoined", function (payload) {
-      
       // TODO: check for duplicate entries
 
       var nUser = {

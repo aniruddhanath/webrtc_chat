@@ -17,7 +17,7 @@ module.exports = function(app) {
       }
 
       var users = [];
-      // async parallel
+      // async parallel pattern
       keys.forEach(function (key) {
         redis.hgetall(key, function (err, user) {
           if (!err && user) {
