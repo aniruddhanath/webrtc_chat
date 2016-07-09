@@ -188,6 +188,9 @@ export default class Index extends React.Component {
                 connectionEstablished={this.state.connectionEstablished} />
               <MessageList messages={this.state.messages}
                 currentUser={this.state.user}
+                isInitiator={this.state.isInitiator}
+                callee={this.state.callee}
+                caller={this.state.caller}
                 peerIsTyping={this.state.peerIsTyping}
                 connectionEstablished={this.state.connectionEstablished} />
               <MessageForm send={this.send.bind(this)}

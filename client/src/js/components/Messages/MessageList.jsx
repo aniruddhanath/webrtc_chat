@@ -20,7 +20,8 @@ export default class MessageList extends React.Component {
     });
 
     const welcome = messageList.length ? "" : "Start sending messages!";
-    const peerIsTyping = this.props.peerIsTyping ? this.props.currentUser.name + " is typing.." : ""
+    const peer = this.props.isInitiator ? this.props.callee.name : this.props.caller.name;
+    const peerIsTyping = this.props.peerIsTyping ? peer + " is typing.." : "";
 
     return (
       <div>
