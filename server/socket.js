@@ -4,6 +4,22 @@ var config = require('config'),
   uuid = require('node-uuid'),
   redis = require('redis').createClient();
 
+function hSetUser(user) {
+  Object.keys(user).forEach(function (key) {
+    redis.hset(config.keys.users + user.sid, key, user[key]);
+  });
+}
+
+function hMarkBusy(io, key, busy) {
+  redis.hgetall(key, function (err, user) {
+    if (!err && user) {
+      user.busy = busy;
+      hSetUser(user);
+      io.sockets.emit("user:busy", user);
+    }
+  });
+}
+
 module.exports = function(io) {
 
   io.sockets.on("connection", function (socket) {
@@ -12,6 +28,9 @@ module.exports = function(io) {
       socket.disconnect();
       redis.hgetall(config.keys.users + socket.id, function (err, user) {
         if (!err && user) {
+          
+          // TODO: check for user connected to room & send disconnect
+
           // send to others
           socket.broadcast.emit("user:left", user);
           redis.del(config.keys.users + socket.id);
@@ -20,9 +39,10 @@ module.exports = function(io) {
       });
     });
 
-    // user joins
     socket.on("userJoined", function (payload) {
+      
       // TODO: check for duplicate entries
+
       var nUser = {
         id: uuid.v1(),
         sid: socket.id,
@@ -30,9 +50,7 @@ module.exports = function(io) {
         time: Date.now(),
         busy: false
       };
-      Object.keys(nUser).forEach(function (key) {
-        redis.hset(config.keys.users + nUser.sid, key, nUser[key]);
-      });
+      hSetUser(nUser);
       // send only to client
       socket.emit("user:loggedin", nUser);
       // send to others
@@ -46,22 +64,10 @@ module.exports = function(io) {
       console.log("room created", payload.room);
       
       // mark caller busy
-      redis.hgetall(config.keys.users + socket.id, function (err, user) {
-        user.busy = true;
-        Object.keys(user).forEach(function (key) {
-          redis.hset(config.keys.users + user.sid, key, user[key]);
-        });
-        io.sockets.emit("user:busy", user);
-      });
-
+      hMarkBusy(io, config.keys.users + socket.id, true);
+      
       // mark callee busy
-      redis.hgetall(config.keys.users + payload.callee.sid, function (err, user) {
-        user.busy = true;
-        Object.keys(user).forEach(function (key) {
-          redis.hset(config.keys.users + user.sid, key, user[key]);
-        });
-        io.sockets.emit("user:busy", user);
-      });
+      hMarkBusy(io, config.keys.users + payload.callee.sid, true);
 
       // ask the callee to join the room
       io.sockets.connected[payload.callee.sid].emit('call:incoming', payload.room, payload.caller);
@@ -82,16 +88,9 @@ module.exports = function(io) {
 
       // mark unbusy
       socks.forEach(function (sock) {
-        redis.hgetall(config.keys.users + sock, function (err, user) {
-          if (!err && user) {
-            user.busy = false;
-            Object.keys(user).forEach(function (key) {
-              redis.hset(config.keys.users + user.sid, key, user[key]);
-            });
-            io.sockets.emit("user:busy", user);
-          }
-        });
+        hMarkBusy(io, config.keys.users + sock, false);
       });
+
       socket.emit('call:rejected');
       io.to(payload.room).emit('call:rejected');
       console.log("call on room", payload.room, "from", payload.caller, "rejected by", payload.callee);
@@ -102,23 +101,16 @@ module.exports = function(io) {
 
       // mark unbusy
       socks.forEach(function (sock) {
-        redis.hgetall(config.keys.users + sock, function (err, user) {
-          if (!err && user) {
-            user.busy = false;
-            Object.keys(user).forEach(function (key) {
-              redis.hset(config.keys.users + user.sid, key, user[key]);
-            });
-            io.sockets.emit("user:busy", user);
-          }
-        });
+        hMarkBusy(io, config.keys.users + sock, false);
       });
+
       io.to(payload.room).emit('call:disconnect');
       console.log("call diconnected on room", payload.room);
     });
 
     socket.on("signalingMessage", function (payload) {
       io.to(payload.room).emit("call:signaling", payload.message);
-      console.log("signaling to", payload.room, "message", payload.message);
+      console.log("signaling to room", payload.room, "message", payload.message);
     });
 
     socket.on("broadcast", function (message) {
