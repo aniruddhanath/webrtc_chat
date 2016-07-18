@@ -2,15 +2,11 @@
 
 A WebRTC `DataChannel` based private chat application using Nodejs as signaling server and React in frontend.
 
-Screenshot
---
-
-![screenshot](https://raw.githubusercontent.com/aniruddhanath/webrtc_chat/master/screenshot.png)
-
 Start Server
 --
 
 ```sh
+redis-server &
 cd server && npm install
 npm start
 ```
