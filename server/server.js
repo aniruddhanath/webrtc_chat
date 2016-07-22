@@ -8,8 +8,7 @@ var express = require("express"),
 
 // server setup
 var app = express(),
-  redis = require('redis').createClient(),
-  server = require('http').createServer(app);
+  redis = require('redis').createClient();
 
 redis.on("error", function (err) {
   console.log("Error " + err);
@@ -30,7 +29,7 @@ var io = require("socket.io").listen(app.listen(config.socket_port));
 require('./socket')(io);
 
 // start server
-server.listen(config.port, config.ip, function () {
+app.listen(config.port, function () {
   console.log('Express server listening on %d, in %s mode', config.port, app.get('env'));
 });
 
