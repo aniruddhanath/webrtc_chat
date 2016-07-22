@@ -26,11 +26,11 @@ app.all('/*', function (req, res, next) {
 require('./routes')(app);
 
 // socket.io
-var io = require("socket.io").listen(app.listen(config.port));
+var io = require("socket.io").listen(app.listen(config.socket_port));
 require('./socket')(io);
 
 // start server
-server.listen(config.port, config.ip, function () {
+app.listen(config.port, config.ip, function () {
   console.log('Express server listening on %d, in %s mode', config.port, app.get('env'));
 });
 
