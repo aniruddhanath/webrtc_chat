@@ -28,7 +28,14 @@ module.exports = function(io) {
       socket.disconnect();
       redis.hgetall(config.keys.users + socket.id, function (err, user) {
         if (!err && user) {
-          // TODO: check for user connected to room & send disconnect
+          
+          // check for user connected to room & send disconnect
+          redis.get(config.keys.peer + socket.id, function (err, sid) {
+            if (!err && sid) {
+              io.sockets.connected[sid].emit('call:disconnect');
+              hMarkBusy(io, config.keys.users + sid, false);
+            }
+          });
 
           // send to others
           socket.broadcast.emit("user:left", user);
@@ -60,7 +67,11 @@ module.exports = function(io) {
       // join the room
       socket.join(payload.room);
       console.log("room created", payload.room);
-      
+
+      // add peer
+      redis.set(config.keys.peer + payload.caller.sid, payload.callee.sid);
+      redis.set(config.keys.peer + payload.callee.sid, payload.caller.sid);
+
       // mark caller busy
       hMarkBusy(io, config.keys.users + socket.id, true);
       
@@ -84,9 +95,11 @@ module.exports = function(io) {
     socket.on("rejectCall", function (payload) {
       var socks = [payload.caller.sid, payload.callee.sid];
 
-      // mark unbusy
       socks.forEach(function (sock) {
+        // mark unbusy
         hMarkBusy(io, config.keys.users + sock, false);
+        // free up peers
+        redis.del(config.keys.peer + sock);
       });
 
       socket.emit('call:rejected');
@@ -97,9 +110,11 @@ module.exports = function(io) {
     socket.on("disconnectCall", function (payload) {
       var socks = Object.keys(io.sockets.adapter.rooms[payload.room].sockets);
 
-      // mark unbusy
       socks.forEach(function (sock) {
+        // mark unbusy
         hMarkBusy(io, config.keys.users + sock, false);
+        // free up peers
+        redis.del(config.keys.peer + sock);
       });
 
       io.to(payload.room).emit('call:disconnect');

@@ -130,7 +130,9 @@ export function send(message) {
 }
 
 export function close() {
-  dataChannel.close();
+  if (dataChannel) {
+    dataChannel.close();
+  }
   isInitiator = true;
   peerConnection = undefined;
   dataChannel = undefined;
