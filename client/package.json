@@ -1,7 +1,7 @@
 {
-  "name": "react-tutorials",
-  "version": "0.0.0",
-  "description": "",
+  "name": "webrtc-chat-frontend",
+  "version": "1.0.0",
+  "description": "Frontend application build in React",
   "main": "webpack.config.js",
   "dependencies": {
     "flux": "^2.1.1",
