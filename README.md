@@ -2,7 +2,7 @@
 
 A WebRTC *DataChannel* based private chat application using *Node.js* in the signaling server and *React* in the webapp.
 
-[Demo](aniruddhanath.github.io/webrtc_chat/)
+[Demo](https://aniruddhanath.github.io/webrtc_chat/)
 
 Server
 --
