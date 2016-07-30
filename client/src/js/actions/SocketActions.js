@@ -1,7 +1,7 @@
 import dispatcher from "../dispatcher";
 import io from "socket.io-client";
 
-var socket = io("http://localhost:4000");
+var socket = io("http://aniruddhanath.com:4000");
 
 socket.on("connect", onConnection);
 socket.on("user:loggedin", onLoggedIn);
