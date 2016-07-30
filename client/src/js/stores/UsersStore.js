@@ -12,7 +12,7 @@ class UsersStore extends EventEmitter {
 
   fetch() {
     const self = this;
-    $.get("http://aniruddhanath.com:3000/users", function (users) {
+    $.get("http://localhost:3000/users", function (users) {
       self.users = users;
       self.emit("reloaded");
     });

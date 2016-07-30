@@ -8,11 +8,17 @@ export default class MessageForm extends React.Component {
 
   submit(event) {
     event.preventDefault();
+
+    const message = this.refs.text.value.trim();
+
+    if (!message) {
+      return;
+    }
     
     this.props.send({
       timeStamp: Date.now(),
       type: "message",
-      text: this.refs.text.value.trim(),
+      text: message,
       user: this.props.user
     });
 
